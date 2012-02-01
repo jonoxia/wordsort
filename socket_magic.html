@@ -1,0 +1,26 @@
+<html>
+<head><title>Socket IO</title>
+<script src="jquery.js"></script>
+<script src="http://runjumpbuild.com:8080/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://runjumpbuild.com:8080');
+
+  socket.on('existing word', function (data) {
+    $("#words-list").append( $("<li></li>").html(data.text));
+  });
+
+  function submitNewWord() {
+    var txt = $("#new-word").val();
+    socket.emit('new word', { x: 0, y: 0, text: txt });
+  }
+</script>
+</head>
+<body>
+  <span id="debug"></span>
+  New Word: <input type="text" id="new-word"></input>
+  <button onclick="submitNewWord();">Submit</button>
+  <hr/>
+  <ul id="words-list">
+  </ul>
+</body>
+</html>
