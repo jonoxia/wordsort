@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+	<head>
+		<title></title>
+		<style>
+		.defaultword {font-family:Arial; font-size:20px; text-align:center; 
+					border:1px dotted #999; padding:5px;
+					position:absolute;
+					max-width:100px;
+					}
+					
+		.chosenword {
+					border:3px solid #009; padding:5px;
+					background-color:#FFF;
+					}
+		
+		#deskarea {border: 1px black solid;
+					height:500px;
+					width:100%;}
+		</style>
+		
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="bythepowerofjquery.js"></script>
+		
+	</head>
+	<body ontouchmove="BlockMove(event);">
+
+Add object: <input type="text" size="50" id="inputbox" /> <button onClick="addWord();">Add</button> 
+
+<span id="chosenmenu" style="display:none">
+	<button onClick="updateCurrentText();" style="color:blue;">Edit Word</button> 
+	<button onClick="deleteWord();" style="color:red;">Delete Word</button> 
+	<button onClick="makeBigger(5);">bigger</button> 
+	<button onClick="makeBigger(-5);">smaller</button> 
+	<button onClick="updateBGColor('#FCC');" style="background-color:#FCC;">bg</button>
+	<button onClick="updateBGColor('#CCF');" style="background-color:#CCF;">bg</button>
+	<button onClick="updateBGColor('#FFC');" style="background-color:#FFC;">bg</button>
+	<button onClick="updateBGColor('#FFF');" style="background-color:#FFF;">bg</button>
+	<button id="makestrip">word strip</button> 
+	<button onClick="makeBigger(0);">word box</button> 
+
+</span>
+<br><br>
+<div id="deskarea">&nbsp;
+</div>
+
+	</body>
+</html>
