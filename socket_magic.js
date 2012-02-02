@@ -19,7 +19,8 @@ io.sockets.on('connection', function (socket) {
                     { x: allWords[i].x,
                       y: allWords[i].y,
                       text: allWords[i].text,
-	              id: allWords[i].id } );
+                      color: allWords[i].color,
+                      id: allWords[i].id } );
     }
 
     // when client reports a new word: assign it an id,
@@ -31,7 +32,8 @@ io.sockets.on('connection', function (socket) {
 	var newWord = {x: data.x,
 		       y: data.y,
 		       text: data.text,
-		       id: newId};
+		       id: newId,
+		       color: "#FFF"};
 	allWords.push(newWord);
 	this.broadcast.emit("word created", {x: newWord.x,
 		    y: newWord.y,
@@ -65,6 +67,14 @@ io.sockets.on('connection', function (socket) {
             var index = allWords.indexOf(word);
 	    allWords.splice(index, 1);
 	    this.broadcast.emit("word deleted", {id: data.id});
+	}
+    });
+
+    socket.on("update color", function(data) {
+        var word = getWordById(data.id);
+	if (word) {
+	    word.color = data.color;
+	    this.broadcast.emit("color changed", {id: data.id, color: data.color});
 	}
     });
 });

@@ -16,7 +16,7 @@ function Word(x, y, blah, id)
     this.y=y;
     this.blah=blah;
     this.id=id;
-			
+
     var deskarea= $('#deskarea'); //div of the area on the page that the word goes in
     this.textbox=$('<div></div>'); // draws a new div for the new word
 
@@ -27,7 +27,7 @@ function Word(x, y, blah, id)
     deskarea.append(this.textbox);
 
     var self = this;
-			
+
     var touchdown = function(event) 
     {
 	self.dx=event.pageX-self.x;   
@@ -39,7 +39,7 @@ function Word(x, y, blah, id)
 	event.stopPropagation(); //stops text highlighting
 	event.preventDefault();								
     };
-			
+
     var dragster = function(event) 
     {
 	if(movingword==self)
@@ -47,20 +47,26 @@ function Word(x, y, blah, id)
 	event.stopPropagation();
 	event.preventDefault();
     };
-			
+
     var touchup =function(event)
     {
 	movingword=null;
 	self.dx = 20;
 	self.dy = 10;
+
+	// Send an "update word" to the server
+	socket.emit("update word", {id: self.id,
+		    x: self.x,
+		    y: self.y,
+		    text: self.blah});
     };
-			
+
     this.textbox.mousedown(touchdown); 
-			
+
     this.textbox.mousemove(dragster);			
-			
+
     this.textbox.mouseup(touchup); 
-						
+
     this.textbox.click( 
 		       function(event)    //makes clicks on the word not count as a click on the deskarea
 			{
@@ -198,14 +204,17 @@ function updateCurrentText()
 		text: chosenword.blah});
 }
 
-
 function updateBGColor(color)
 {
     $(chosenword.textbox).css('background-color', color);
+    socket.emit("update color", {id: chosenword.id,
+		color: color});
 }
 
 function makeBigger(bigger)
-{	chosenword.updateSize(bigger);		}
+{  
+    chosenword.updateSize(bigger);
+}
 
 function BlockMove(event) {  // Tell Safari not to move the window, stolen from http://matt.might.net/articles/how-to-native-iphone-ipad-apps-in-javascript/
     event.preventDefault() ;
@@ -217,15 +226,10 @@ function onLoad()
 
     var deskarea= document.getElementById("deskarea"); //$('#deskarea'); //div of the area on the page that the words go in
     deskarea.addEventListener("mousemove", function(event) {
-	//If there's a word that is currently being moved, it updates the location of the word to the mouse pointer.
+	// If there's a word that is currently being moved, it updates the location of the word to the mouse pointer.
         if (movingword != null)
 	{
 	    movingword.updatePosition(event.pageX, event.pageY);
-	    // Send an "update word" to the server
-	    socket.emit("update word", {id: chosenword.id,
-			x: chosenword.x,
-			y: chosenword.y,
-			text: chosenword.blah});
 
 	}
     });
@@ -251,7 +255,9 @@ function onLoad()
     // respond to notifications that the server sends us:
     socket.on("word created", function(data) {
       // create new word in allthewords array.
-      allthewords.push(new Word(data.x, data.y, data.text, data.id));
+	var newWord = new Word(data.x, data.y, data.text, data.id);
+        newWord.textbox.css('background-color', data.color);
+	allthewords.push(newWord);
     });
 
     socket.on("word updated", function(data) {
@@ -259,6 +265,13 @@ function onLoad()
 	if (word) {
 	    word.updatePosition(data.x, data.y);
 	    word.updateText(data.text);
+	}
+    });
+
+    socket.on("color changed", function(data) {
+        var word = getWordById(data.id);
+	if (word) {
+	    word.textbox.css('background-color', data.color);
 	}
     });
 
