@@ -16,6 +16,7 @@ function Word(x, y, blah, id)
     this.y=y;
     this.blah=blah;
     this.id=id;
+    this.fontsize = 20;
 
     var deskarea= $('#deskarea'); //div of the area on the page that the word goes in
     this.textbox=$('<div></div>'); // draws a new div for the new word
@@ -77,8 +78,7 @@ function Word(x, y, blah, id)
     this.textbox.on("touchstart", touchdown);			
     this.textbox.on("touchmove", dragster);				
     this.textbox.on("touchend", touchup);
-    //// end touchscreen shit ///			
-
+    //// end touchscreen shit ///
 }
 
 Word.prototype =
@@ -103,23 +103,45 @@ Word.prototype =
 	this.blah = text;
 	this.textbox.html(this.blah);
 	this.textbox.addClass('defaultword')
-	this.updateSize(0);
-    },		
-    updateSize: function(bigger)
-    {
-	var fontsize= extractCSSNumber('font-size');
+	this.recalculateWrap();
+    },
+
+    recalculateWrap: function() {
 	var wordlength= this.blah.length;
-	
-	fontsize = fontsize+bigger;	
-	
-	if(fontsize<=50 && fontsize >=10) //max fontsize = 50px, min fontsize=15px
-	    {				
-		$(this.textbox).css('font-size', fontsize + 'px');
-		$(this.textbox).css('max-width', fontsize*wordlength/8+fontsize*3 + 'px'); //random formula for calculating box size
-	    }
+	if (this.style == "box") {
+	  //random formula for calculating box size
+            var width = this.fontsize*wordlength/8+this.fontsize*3;
+            $(this.textbox).css('max-width', width + 'px');
+	}
+    },
+
+    setFontSize: function(newFontsize) {
+	// Sets fontszie to given number
+	this.fontsize = newFontsize;
+	$(this.textbox).css('font-size', this.fontsize + 'px');
+	this.recalculateWrap();
+    },
+
+    changeFontSize: function(bigger)
+    {
+	// Increases fontszie by given number (make it negative to decrease font size)
+	var newFontsize = this.fontsize + bigger;
+	if(newFontsize<=50 && newFontsize >=10) //max fontsize = 50px, min fontsize=15px
+        {
+	    this.setFontSize(newFontsize);
+        }
 	/// making the border thicker is done in the setChosen function when setChosen is made false.
 	/// otherwise, the style would supercede the class attribute in the textbox.
-    },		
+    },
+
+    updateWrapStyle: function(style) {
+	this.style = style;
+	if (style == "strip") {
+	    $(chosenword.textbox).css('max-width','90%');
+	} else {
+	    this.recalculateWrap();
+	}
+    },
     
     setChosen: function(newvalue) //takes true/false boolean, toggles the appearance of the chosen word
     {
@@ -213,8 +235,20 @@ function updateBGColor(color)
 
 function makeBigger(bigger)
 {  
-    chosenword.updateSize(bigger);
+    chosenword.changeFontSize(bigger);
+    socket.emit("update size", {id: chosenword.id,
+		fontsize: chosenword.fontsize});
 }
+
+function changeWrapStyle(style) {
+    // Style is either "box" or "strip"; it affects how the word wraps.
+    chosenword.updateWrapStyle(style);
+    socket.emit("update wrap", {id: chosenword.id,
+		style: style});
+}
+
+    
+
 
 function BlockMove(event) {  // Tell Safari not to move the window, stolen from http://matt.might.net/articles/how-to-native-iphone-ipad-apps-in-javascript/
     event.preventDefault() ;
@@ -244,19 +278,13 @@ function onLoad()
 			 }
 			  );
     
-    $('#makestrip').click( 
-			  function() 
-			  {
-			      $(chosenword.textbox).css('max-width','90%');
-			  }
-			   );
-    
-    
     // respond to notifications that the server sends us:
     socket.on("word created", function(data) {
       // create new word in allthewords array.
 	var newWord = new Word(data.x, data.y, data.text, data.id);
-        newWord.textbox.css('background-color', data.color);
+        newWord.textbox.css('background-color', data.color); // TODO make this a setColor method
+	newWord.setFontSize(data.fontsize);
+	newWord.updateWrapStyle(data.wrapstyle);
 	allthewords.push(newWord);
     });
 
@@ -272,6 +300,20 @@ function onLoad()
         var word = getWordById(data.id);
 	if (word) {
 	    word.textbox.css('background-color', data.color);
+	}
+    });
+
+    socket.on("size changed", function(data) {
+	var word = getWordById(data.id);
+	if (word) {
+	    word.setFontSize(data.fontsize);
+	}
+    });
+
+    socket.on("wrap changed", function(data) {
+	var word = getWordById(data.id);
+	if (word) {
+	    chosenword.updateWrapStyle(data.style);
 	}
     });
 

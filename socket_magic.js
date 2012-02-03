@@ -20,6 +20,8 @@ io.sockets.on('connection', function (socket) {
                       y: allWords[i].y,
                       text: allWords[i].text,
                       color: allWords[i].color,
+                      fontsize: allWords[i].fontsize,
+                      wrapstyle: allWords[i].wrapstyle,
                       id: allWords[i].id } );
     }
 
@@ -33,19 +35,15 @@ io.sockets.on('connection', function (socket) {
 		       y: data.y,
 		       text: data.text,
 		       id: newId,
-		       color: "#FFF"};
+		       color: "#FFF",
+	               fontsize: 14,
+	               wrapstyle: "box"};
 	allWords.push(newWord);
-	this.broadcast.emit("word created", {x: newWord.x,
-		    y: newWord.y,
-		    text: newWord.text,
-		    id: newWord.id} );
+	this.broadcast.emit("word created", newWord);
 	// Broadcast does not send it back to the socket it
 	// came from -- but we need to do that, so that the
 	// creator of the word can know what id the server assigned it
-	this.emit("word created", {x: newWord.x,
-		    y: newWord.y,
-		    text: newWord.text,
-		    id: newWord.id} );
+	this.emit("word created", newWord);
     });
 
     socket.on("update word", function (data) {
@@ -75,6 +73,22 @@ io.sockets.on('connection', function (socket) {
 	if (word) {
 	    word.color = data.color;
 	    this.broadcast.emit("color changed", {id: data.id, color: data.color});
+	}
+    });
+
+    socket.on("update wrap", function(data) {
+        var word = getWordById(data.id);
+	if (word) {
+	    word.wrapstyle = data.style;
+	    this.broadcast.emit("wrap changed", {id: data.id, style: data.style});
+	}
+    });
+
+    socket.on("update size", function(data) {
+        var word = getWordById(data.id);
+	if (word) {
+	    word.fontsize = data.fontsize;
+	    this.broadcast.emit("size changed", {id: data.id, fontsize: data.fontsize});
 	}
     });
 });
