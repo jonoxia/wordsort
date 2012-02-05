@@ -36,7 +36,11 @@ function Word(x, y, blah, id)
     var deskarea= $('#deskarea'); //div of the area on the page that the word goes in
     this.textbox=$('<div></div>'); // draws a new div for the new word
 
-    this.setChosen(true);
+    this.setChosen(true); // TODO don't set as chosen if word was craeated by a different user!!
+    // at the moment it's really annoying because if i'm in the middle of typing and you create
+    // a word, your creation becomes my selection and I lose what I was typing.
+    // however fixing this is slightly tricky because words I create and words you create
+    // are both handled the same way, through the "word created" handler.
 
     this.updateText(blah);
     this.updatePosition(x, y);
@@ -336,7 +340,7 @@ function onLoad()
     socket.on("wrap changed", function(data) {
 	var word = getWordById(data.id);
 	if (word) {
-	    chosenword.updateWrapStyle(data.style);
+	    word.updateWrapStyle(data.style);
 	}
     });
 
