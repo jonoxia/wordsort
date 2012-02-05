@@ -108,6 +108,13 @@ Word.prototype =
 	this.textbox.remove();
 	chosenword = null;
     }, 
+
+	parseInput: function()
+	{
+	var imagelink=new RegExp('[^"](http\\S*(jpg|gif|png))','g');
+	this.blah.replace(imagelink,'<img src="$1">');  //$1 = remembering the contents of first big set of parentheses
+	},
+
     updatePosition: function(x, y)
     {
 	if(movingword==this)
@@ -120,6 +127,8 @@ Word.prototype =
     updateText: function(text)
     {
 	this.blah = text;
+	this.parseInput();
+
 	this.textbox.html(this.blah);
 	this.textbox.addClass('defaultword')
 	this.recalculateWrap();
@@ -191,7 +200,18 @@ Word.prototype =
 	
 	
     },		
-    
+
+	setBusy: function(busy) //takes true/false boolean, toggles the appearance of the busy word
+	{
+	if (busy==true)
+		{
+		$(this.textbox).addClass('busyword');	 //changes word style
+		}
+	else		
+		{
+		$(this.textbox).removeClass('busyword');
+		}
+	},		    
 };
 
 /////////// other general functions ////////////////
