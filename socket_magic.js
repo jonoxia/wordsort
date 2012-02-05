@@ -94,4 +94,12 @@ io.sockets.on('connection', function (socket) {
         dbConnection.query("UPDATE words SET fontsize=? WHERE id=?",
 			 [data.fontsize, data.id]);
     });
+
+    socket.on("claim word", function(data) {
+	    this.broadcast.to(data.room).emit("word busy", {id: data.id});
+	});
+
+    socket.on("release word", function(data) {
+	    this.broadcast.to(data.room).emit("word freed", {id: data.id});
+	});
 });

@@ -109,11 +109,13 @@ Word.prototype =
 	chosenword = null;
     }, 
 
-	parseInput: function()
-	{
+    parseInput: function()
+    {
+	// Replace any URL ending in jpg, gif, or png with an <img> tag pointint to that
+	// URL. This lets users easily embed images.
 	var imagelink=new RegExp('[^"](http\\S*(jpg|gif|png))','g');
 	this.blah.replace(imagelink,'<img src="$1">');  //$1 = remembering the contents of first big set of parentheses
-	},
+    },
 
     updatePosition: function(x, y)
     {
@@ -186,6 +188,9 @@ Word.prototype =
 		$('#chosenmenu').show();
 		$('#inputbox').val(this.blah); 
 		
+		// Tell the server that I've claimed this word, so it will show up as
+		// busy for other users until I release it.
+		socket.emit("claim word", {id: this.id, room: roomname});
 	    }
 	else		
 	    {
@@ -196,13 +201,16 @@ Word.prototype =
 		
 		$('#chosenmenu').hide();
 		$('#inputbox').val('');
+		
+		// Tell the server that I've released this word, is no longer busy.
+		socket.emit("release word", {id: this.id, room: roomname});
 	    }
 	
 	
     },		
 
-	setBusy: function(busy) //takes true/false boolean, toggles the appearance of the busy word
-	{
+    setBusy: function(busy) //takes true/false boolean, toggles the appearance of the busy word
+    {
 	if (busy==true)
 		{
 		$(this.textbox).addClass('busyword');	 //changes word style
@@ -211,7 +219,7 @@ Word.prototype =
 		{
 		$(this.textbox).removeClass('busyword');
 		}
-	},		    
+    }
 };
 
 /////////// other general functions ////////////////
@@ -372,6 +380,20 @@ function onLoad()
 	    word.removeSelf();
 	    var i = allthewords.indexOf(word);
 	    allthewords.splice(i, 1);
+	}
+    });
+
+    socket.on("word busy", function(data) {
+        var word = getWordById(data.id);
+	if (word) {
+	    word.setBusy(true);
+	}
+    });
+
+    socket.on("word freed", function(data) {
+        var word = getWordById(data.id);
+	if (word) {
+	    word.setBusy(false);
 	}
     });
 }
