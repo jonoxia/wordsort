@@ -7,6 +7,21 @@ var allthewords = [];
 var chosenword = null;
 var movingword = null;
 var socket = null;
+var roomname = null;
+
+// Get URL parameters - used to read room name from URL
+function gup( name )
+{
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( window.location.href );
+    if( results == null )
+	return "";
+    else
+	return unescape(results[1]);
+}
+
 		
 function Word(x, y, blah, id)
 //the word object has properties: x, y, blah, id, 
@@ -193,14 +208,14 @@ function addWord()
     var randy =Math.floor(Math.random()*400)+50;
 
     // Tell server to create the new word:
-    socket.emit("new word", {x: randx, y: randy, text: blah});
+    socket.emit("new word", {x: randx, y: randy, text: blah, room: roomname});
 }
 
 function deleteWord()
 {   
     if (chosenword != null) {
 	// tell server to delete word:
-	socket.emit("delete word", {id: chosenword.id});
+	socket.emit("delete word", {id: chosenword.id, room: roomname});
 	chosenword.removeSelf();
 	var i = allthewords.indexOf(chosenword);
 	allthewords.splice(i, 1);
@@ -223,28 +238,32 @@ function updateCurrentText()
     socket.emit("update word", {id: chosenword.id,
 		x: chosenword.x,
 		y: chosenword.y,
-		text: chosenword.blah});
+		text: chosenword.blah,
+		room: roomname});
 }
 
 function updateBGColor(color)
 {
     $(chosenword.textbox).css('background-color', color);
     socket.emit("update color", {id: chosenword.id,
-		color: color});
+		color: color,
+		room: roomname});
 }
 
 function makeBigger(bigger)
 {  
     chosenword.changeFontSize(bigger);
     socket.emit("update size", {id: chosenword.id,
-		fontsize: chosenword.fontsize});
+		fontsize: chosenword.fontsize,
+		room: roomname});
 }
 
 function changeWrapStyle(style) {
     // Style is either "box" or "strip"; it affects how the word wraps.
     chosenword.updateWrapStyle(style);
     socket.emit("update wrap", {id: chosenword.id,
-		style: style});
+		style: style,
+		room: roomname});
 }
 
     
@@ -256,7 +275,8 @@ function BlockMove(event) {  // Tell Safari not to move the window, stolen from 
 
 function onLoad()
 {
-    socket = io.connect("http://runjumpbuild.com:8080");
+    roomname = gup("room"); // Get room name from URL
+    socket = io.connect("http://runjumpbuild.com:8080"); // Connect to node server
 
     var deskarea= document.getElementById("deskarea"); //$('#deskarea'); //div of the area on the page that the words go in
     deskarea.addEventListener("mousemove", function(event) {
@@ -277,6 +297,9 @@ function onLoad()
 				 }
 			 }
 			  );
+
+    // Tell the server what room I want:
+    socket.emit("join room", {room: roomname});
     
     // respond to notifications that the server sends us:
     socket.on("word created", function(data) {
