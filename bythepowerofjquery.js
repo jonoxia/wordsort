@@ -374,7 +374,7 @@ function onLoad()
     socket.on("color changed", function(data) {
         var word = getWordById(data.id);
 	if (word) {
-	    word.textbox.css('background-color', data.color);
+	    word.setBGColor(data.color);
 	}
     });
 
