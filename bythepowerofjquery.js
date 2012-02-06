@@ -229,11 +229,13 @@ Word.prototype =
     {
 	if (busy==true)
 		{
+		this.isbusy=true;
 		$(this.textbox).addClass('busyword');
 		this.setBGColor(this.bgcolor);	 //changes word style
 		}
 	else		
 		{
+		this.isbusy=false;
 		$(this.textbox).removeClass('busyword');
 		this.setBGColor(this.bgcolor);
 		}
