@@ -147,6 +147,7 @@ Word.prototype =
 
     setBGColor: function(color)
     {
+	console.log("Setting bgcolor to " + color);
    	    this.bgcolor=color;
 		if(this.isbusy)
 			{ $(this.textbox).css('background-color', '#999');}
@@ -362,7 +363,7 @@ function onLoad()
     socket.on("word created", function(data) {
       // create new word in allthewords array.
 	var newWord = new Word(data.x, data.y, data.text, data.id);
-        newWord.textbox.css('background-color', data.color); // TODO make this a setColor method
+        newWord.setBGColor(data.color);
 	newWord.setFontSize(data.fontsize);
 	newWord.updateWrapStyle(data.wrapstyle);
 	allthewords.push(newWord);
