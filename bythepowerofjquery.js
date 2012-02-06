@@ -25,6 +25,8 @@ function gup( name )
 		
 function Word(x, y, blah, id)
 //the word object has properties: x, y, blah, id, 
+// fontsize, bgcolor,
+// isactive, isbusy
 // textbox, chosen, class, updatePosition()
 {
     this.x=x;
@@ -32,6 +34,9 @@ function Word(x, y, blah, id)
     this.blah=blah;
     this.id=id;
     this.fontsize = 20;
+	this.bgcolor = '#000';
+	this.isactive = true;
+	this.isbusy = false; 
 
     var deskarea= $('#deskarea'); //div of the area on the page that the word goes in
     this.textbox=$('<div></div>'); // draws a new div for the new word
@@ -136,6 +141,17 @@ Word.prototype =
 	this.recalculateWrap();
     },
 
+    setBGColor: function(color)
+    {
+   	    this.bgcolor=color;
+		if(this.isbusy)
+			{ $(this.textbox).css('background-color', '#999');}
+		else
+			{
+			 $(this.textbox).css('background-color', this.bgcolor);
+			}
+    },
+
     recalculateWrap: function() {
 	var wordlength= this.blah.length;
 	if (this.style == "box") {
@@ -154,7 +170,7 @@ Word.prototype =
 
     changeFontSize: function(bigger)
     {
-	// Increases fontszie by given number (make it negative to decrease font size)
+	// Increases fontsize by given number (make it negative to decrease font size)
 	var newFontsize = this.fontsize + bigger;
 	if(newFontsize<=50 && newFontsize >=10) //max fontsize = 50px, min fontsize=15px
         {
@@ -213,11 +229,13 @@ Word.prototype =
     {
 	if (busy==true)
 		{
-		$(this.textbox).addClass('busyword');	 //changes word style
+		$(this.textbox).addClass('busyword');
+		setBGColor(this.bgcolor);	 //changes word style
 		}
 	else		
 		{
 		$(this.textbox).removeClass('busyword');
+		setBGColor(this.bgcolor);
 		}
     }
 };
@@ -276,7 +294,7 @@ function updateCurrentText()
 
 function updateBGColor(color)
 {
-    $(chosenword.textbox).css('background-color', color);
+	chosenword.setBGColor(color);
     socket.emit("update color", {id: chosenword.id,
 		color: color,
 		room: roomname});
