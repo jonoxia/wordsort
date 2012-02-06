@@ -34,14 +34,14 @@ function Word(x, y, blah, id)
     this.blah=blah;
     this.id=id;
     this.fontsize = 20;
-	this.bgcolor = '#FFF';
-	this.isactive = true;
-	this.isbusy = false; 
+    this.bgcolor = '#FFF';
+    this.isactive = true;
+    this.isbusy = false; 
 
     var deskarea= $('#deskarea'); //div of the area on the page that the word goes in
     this.textbox=$('<div></div>'); // draws a new div for the new word
 
-    this.setChosen(true); // TODO don't set as chosen if word was craeated by a different user!!
+    //this.setChosen(true); // TODO don't set as chosen if word was craeated by a different user!!
     // at the moment it's really annoying because if i'm in the middle of typing and you create
     // a word, your creation becomes my selection and I lose what I was typing.
     // however fixing this is slightly tricky because words I create and words you create
@@ -55,7 +55,7 @@ function Word(x, y, blah, id)
 
     var touchdown = function(event) 
     {
-	if(!this.busy)
+	if(!this.isbusy)
 		{
 		self.dx=event.pageX-self.x;   
 		self.dy=event.pageY-self.y; 
@@ -349,6 +349,7 @@ function onLoad()
 			     if (movingword == null && chosenword!=null)
 				 {
 				     chosenword.setChosen(false);
+				     chosenword = null;
 				 }
 			 }
 			  );
