@@ -230,12 +230,12 @@ Word.prototype =
 	if (busy==true)
 		{
 		$(this.textbox).addClass('busyword');
-		setBGColor(this.bgcolor);	 //changes word style
+		this.setBGColor(this.bgcolor);	 //changes word style
 		}
 	else		
 		{
 		$(this.textbox).removeClass('busyword');
-		setBGColor(this.bgcolor);
+		this.setBGColor(this.bgcolor);
 		}
     }
 };
