@@ -55,14 +55,17 @@ function Word(x, y, blah, id)
 
     var touchdown = function(event) 
     {
-	self.dx=event.pageX-self.x;   
-	self.dy=event.pageY-self.y; 
+	if(!this.busy)
+		{
+		self.dx=event.pageX-self.x;   
+		self.dy=event.pageY-self.y; 
 	
-	movingword=self;
-	self.setChosen(true);   //toggles local "chosen" attribute
+		movingword=self;
+		self.setChosen(true);   //toggles local "chosen" attribute
+		}							
 								
-	event.stopPropagation(); //stops text highlighting
-	event.preventDefault();								
+		event.stopPropagation(); //stops text highlighting
+		event.preventDefault();	
     };
 
     var dragster = function(event) 
