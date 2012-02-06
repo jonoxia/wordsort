@@ -34,7 +34,7 @@ function Word(x, y, blah, id)
     this.blah=blah;
     this.id=id;
     this.fontsize = 20;
-	this.bgcolor = '#000';
+	this.bgcolor = '#FFF';
 	this.isactive = true;
 	this.isbusy = false; 
 
