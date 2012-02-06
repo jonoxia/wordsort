@@ -55,7 +55,8 @@ function Word(x, y, blah, id)
 
     var touchdown = function(event) 
     {
-	if(!this.isbusy)
+
+	if(!self.isbusy)
 		{
 		self.dx=event.pageX-self.x;   
 		self.dy=event.pageY-self.y; 
