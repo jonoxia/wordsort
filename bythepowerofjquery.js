@@ -53,26 +53,41 @@ function Word(x, y, blah, id)
 
     var self = this;
 
+    var getEventXY = function(event) {
+	// gets the pageX, pageY from the event in device-indepentent way -- 
+	// for most browsers it's event.pageX (thanks to jquery) but not for
+	// touch events on iSlab.
+	if (typeof event.pageX != "undefined")  {
+	    return {x: event.pageX, y: event.pageY};
+	} else {
+	    return {x: event.originalEvent.targetTouches[0].pageX,
+		    y: event.originalEvent.targetTouches[0].pageY};
+	}
+    };
+
     var touchdown = function(event) 
     {
-
-	if(!self.isbusy)
-		{
-		self.dx=event.pageX-self.x;   
-		self.dy=event.pageY-self.y; 
+	if(!self.isbusy) // Don't allow selection of busy words
+	{
+	    var touchPos = getEventXY(event);
+            self.dx = touchPos.x - self.x;   
+	    self.dy = touchPos.y - self.y; 
 	
-		movingword=self;
-		self.setChosen(true);   //toggles local "chosen" attribute
-		}							
+            movingword=self;
+            self.setChosen(true);   //toggles local "chosen" attribute
+	}							
 								
-		event.stopPropagation(); //stops text highlighting
-		event.preventDefault();	
+	event.stopPropagation(); //stops text highlighting
+	event.preventDefault();	
     };
 
     var dragster = function(event) 
     {
-	if(movingword==self)
-	    {self.updatePosition(event.pageX, event.pageY);}
+	if (movingword==self)
+	{
+	    var touchPos = getEventXY(event);
+	    self.updatePosition(touchPos.x, touchPos.y);
+	}
 	event.stopPropagation();
 	event.preventDefault();
     };
